@@ -25,6 +25,7 @@ import cot_reports               as cot
 import requests
 import json  
 import sys
+import numpy as np
 
 now = datetime.datetime.now()
 
