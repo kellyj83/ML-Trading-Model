@@ -7516,7 +7516,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Applications-of-Stochastic-Processes-to-Population-Modelling:-Ornstein-Uhlenbeck-Process-(OU)">Applications of Stochastic Processes to Population Modelling: Ornstein-Uhlenbeck Process (OU)<a class="anchor-link" href="#Applications-of-Stochastic-Processes-to-Population-Modelling:-Ornstein-Uhlenbeck-Process-(OU)">¶</a></h2><p>This Note aims to show how the Ornstein-Uhlenbeck process, a mean-reverting SDE, can be used to model birth/death rates of a population. We aim to:</p>
+<h2 id="Applications-of-Stochastic-Processes-to-Population-Modelling:-Ornstein-Uhlenbeck-Process-(OU)">Applications of Stochastic Processes to Population Modelling: Ornstein-Uhlenbeck Process (OU)<a class="anchor-link" href="#Applications-of-Stochastic-Processes-to-Population-Modelling:-Ornstein-Uhlenbeck-Process-(OU)">¶</a></h2><p>This note aims to show how the Ornstein-Uhlenbeck process, a mean-reverting SDE, can be used to model birth/death rates of a population. We aim to:</p>
 <ul>
 <li>Discuss population models (birth rate, death rate, overall population) and how we can use stochastic models to reflect real world data</li>
 <li>Give an overview of the mathematics underlying the Stochastic Process (Derivation, Mean/Variance/Covariance, Limiting Distribution)</li>
@@ -7543,7 +7543,7 @@ $$dX_t = \theta(\mu - X_t)dt + \sigma dW_t$$</p>
 <p>The SDE above is interpreted as describing a linear drift process where the drift term ($dt$ component) prescribes a mean-reversion of $X_t$ towards the long term mean $\mu$ with an additional parameter $\theta$ describing the rate/speed of reversion.</p>
 <h4 id="Solving-the-Ornstein-Uhlenbeck-SDE">Solving the Ornstein-Uhlenbeck SDE<a class="anchor-link" href="#Solving-the-Ornstein-Uhlenbeck-SDE">¶</a></h4><p>One can show that the analytical solution of the OU process is</p>
 <p>$$X_t = \mu + e^{-\theta T}(X_0 - \mu) + \sigma\int_0^T e^{-\theta(T-t)} dW_t$$</p>
-<p>We can conclude that $X_t$ is normally distributed with the following for the mean, variance and covariance:</p>
+<p>We can conclude that $X_t$ is normally distributed, due to Brownian Motion. The following are formulas for the mean, variance and covariance:</p>
 <p>$$\mathbb{E} [X_t] = \mu + e^{-\theta T}(X_0 - \mu)$$</p>
 <p>$$V[X_t] = \frac{\sigma^2}{2\theta}\left(1-e^{-2\theta T}\right)$$</p>
 <p>$$C[X_t, X_S] = \frac{\sigma^2}{2\theta}\left( e^{-\theta |T-S|} - e^{-\theta(T+S)} \right)$$</p>
@@ -7569,7 +7569,20 @@ $$Y_{n+1} = Y_n + a(Y_n , \tau_n)\Delta t + b(Y_n , \tau_n)(W_{\tau_n+1} - W_{\t
 <p>To give a more formal statement; given $n+1$ samples $\left\{ x_0, x_1, ... , x_n \right\} = \vec{\mathbf{x}}$ at times $t_0, t_1, ..., t_n$ respectively, the vector $\Theta = [\theta, \mu , \sigma]$ can be estimated using maximum likelihood.</p>
 <p>Going back to our OU process, we can start by defining the Conditional Distribution:</p>
 <p>$$X_t | X_{t-1} \sim N\left( X_{t-1}e^{-\theta \Delta t} + \mu \left( 1-e^{-\theta \Delta t} \right), \frac{\sigma^2}{2\theta}\left( 1-e^{-2\theta \Delta t} \right) \right)$$</p>
-<p>where we define $\Delta t = t_{i+1} - t_i \; \forall i \;$ such that $1 \leq i \leq n$. We assume that all time observations are evenly spaced for simplicity.</p>
+<p>where we define $\Delta t = t_{i} - t_{i-1} \; \forall i \;$ such that $1 \leq i \leq n$. We assume that all time observations are evenly spaced for simplicity.</p>
+<p>We next need to use a likelihood function, which calculates the probability of observing the sample data given the parameter values set for the model. It is constructed from the joint probability distribution of the random variable that generated the observations. We denote this as</p>
+<p>$$\mathcal{L}(\Theta; \vec{\mathbf{x}} ) = \prod_{i=1}^n f_{X_t | X_{t-1}}(x_{t_i})$$</p>
+<p>where $f_{X_t | X_{t-1}}(x_{t_i})$ is the probability density function for the conditional distribution $X_t | X_{t-1}$. The <strong>goal of MLE is to be able to maximise this function,</strong> which can help us identify the optimal parameters for our model, that is we need to solve</p>
+<p>$$\hat{\theta} = \underset{\theta \in \Theta}{\operatorname{argmax}} \mathcal{L}(\Theta, \vec{\mathbf{x}})$$</p>
+<p>To fully derive the function, we know that the pdf for a normal distribution is
+$$f(x) = \frac{1}{\sqrt{2\pi \sigma^2}}\exp(-\frac{(x-\mu)^2}{2\sigma^2})$$</p>
+<p>so substituting in our mean and variance for the conditional distribution we get</p>
+<p>$$\mathcal{L}(\Theta; \vec{\mathbf{x}} ) = \prod_{i=1}^n \left( \frac{1}{\sqrt{2\pi\tilde{\sigma}^2}}\exp \left( -\frac{1}{2\tilde{\sigma}^2}\left( x_{t_i} - \mu - (x_{t_i} - \mu)e^{-\theta \Delta t} \right)^2 \right)\right)$$</p>
+<p>where $\tilde{\sigma}^2 = \frac{\sigma^2}{2\theta}(1-e^{-2\theta \Delta t})$. It is common practise to instead work with the <strong>log-likelihood function,</strong> which is allowed since logarithms are strictly increasing functions. This becomes</p>
+<p>$$\ln\left( \mathcal{L}(\Theta; \vec{\mathbf{x}}) \right) = l(\Theta; \vec{\mathbf{x}}) \\[6pt]
+    = -\frac{n}{2}\ln (2\pi) -\frac{n}{2}\ln \left(\frac{\sigma^2}{2\theta}\right) - \frac{n}{2}\ln \left(1-e^{-2\theta \Delta t}\right) \\[2pt] - \frac{\theta}{\sigma^2}\sum_{i=1}^n \left( \frac{1}{1-e^{-2\theta \Delta t}} \left( x_{t_i} - \mu - (x_{t_i} - \mu)e^{-2\theta \Delta t} \right)^2 \right)$$</p>
+<p>(DOUBLE CHECK THESE FORMULAE)
+There does exist analytical formulas for the optimal parameters for this model, but in our note we shall use <em>scipy.optimise</em> to solve this.</p>
 </div>
 </div>
 </div>
